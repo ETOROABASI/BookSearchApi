@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BookSearchApi</string>
+    <string name="default_text">Search result appears here</string>
+    <string name="search">Search</string>
+    <string name="edit_hint">Book Title or Author</string>
+    <string name="error_message">Failed to load data. try again</string>
+</resources>
