@@ -7,19 +7,25 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity implements android.support.v4.app.LoaderManager.LoaderCallbacks<String> {
+public class MainActivity extends AppCompatActivity implements android.support.v4.app.LoaderManager.LoaderCallbacks<String[]> {
 
     private static final String URL_STRING_BUNDLE_KEY = "search_string_bundle_key"; //gets the bundle key
+
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private static final int SEARCH_LOADER_ID = 4;      //loader id
 
@@ -34,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements android.support.v
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.d(LOG_TAG, "activity started");
 
         mDisplaySearchResultTextView = findViewById(R.id.tv_display_search_result_main);
         mSearchEditText = findViewById(R.id.et_book_title_main);
@@ -118,11 +126,11 @@ public class MainActivity extends AppCompatActivity implements android.support.v
 
 
     @Override
-    public Loader<String> onCreateLoader(int id, final Bundle args) {
+    public Loader<String[]> onCreateLoader(int id, final Bundle args) {
 
-        return new AsyncTaskLoader<String>(this) {
+        return new AsyncTaskLoader<String[]>(this) {
 
-            String dataToDeliver = null;
+            String[] dataToDeliver = null;
             @Override
             protected void onStartLoading() {
             //if nothing is inthe bundle, there is no need to query or go to doinBackround, so just return
@@ -143,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements android.support.v
             }
 
             @Override
-            public String loadInBackground() {
+            public String[] loadInBackground() {
 
                // String searchQuery = args.getString(URL_STRING_BUNDLE_KEY);
 
@@ -158,11 +166,19 @@ public class MainActivity extends AppCompatActivity implements android.support.v
 
                     URL url = new URL(args.getString(URL_STRING_BUNDLE_KEY));
                     String searchResult =  NetworkUtils.getResponseFromHttpUrlBuffer(url);
-                    return searchResult;
+
+                    Log.d("MainActivity", "result String: " + searchResult);
+
+
+                    String[]  searchResultArray = BookSearchJson.getSimpleBookSearchJson(searchResult);
+
+                    Log.d("MainActivity", "Length of result array: " + searchResultArray.length);
+                    return searchResultArray;
 
                 }
-                catch (IOException e){
+                catch (Exception e){
                     e.printStackTrace();
+                    Log.d("MainActivity", "error" + e.getMessage().toString());
                     return null;
                 }
             }
@@ -170,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements android.support.v
             //this method stores the value of the result in case another app was opened, on returning to your app, it won't
             //query again but just delivers the result it had
             @Override
-            public void deliverResult(String data) {
+            public void deliverResult(String data[]) {
                 dataToDeliver = data;
                 showResult();   //this helps to hide the progress bar, else it would be showing cos it was saved in onsavedinstance
                                 //and displays the result textview, without this, the loading bar will cover the textview, cos they
@@ -181,22 +197,26 @@ public class MainActivity extends AppCompatActivity implements android.support.v
     }
 
     @Override
-    public void onLoadFinished(Loader<String> loader, String data) {
+    public void onLoadFinished(Loader<String[]> loader, String[] data) {
 
 
         //if there is no result, display an error message
-        if(data == null || TextUtils.isEmpty(data)){
+        if(data == null){
             showErrorMessage();
+            Log.d(LOG_TAG, "data is null in onLoadFinished");
         }
         else {
             //display the result
-            mDisplaySearchResultTextView.setText(data);
-            showResult();
+            for(String searchResultString : data){
+                mDisplaySearchResultTextView.append(searchResultString + "\n\n");
+                showResult();
+            }
+
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<String> loader) {
+    public void onLoaderReset(Loader<String[]> loader) {
 
     }
 
