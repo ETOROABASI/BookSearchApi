@@ -6,6 +6,8 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +17,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.android.booksearchapi.adapter.BookAdapter;
 
 import org.json.JSONException;
 
@@ -31,10 +35,13 @@ public class MainActivity extends AppCompatActivity implements android.support.v
 
     private static final String PROGRESS_BAR_STATUS = "progress_bar_status";    //status for progressBar used in savedInstanceState
 
-    TextView mDisplaySearchResultTextView, mDisplayErrorMessageTextView;
+    TextView mDisplayErrorMessageTextView;
     EditText mSearchEditText;
     Button mSearchButton;
     ProgressBar mLoadingProgressBar;
+    private RecyclerView mRecyclerView;
+    private BookAdapter mBookAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +50,20 @@ public class MainActivity extends AppCompatActivity implements android.support.v
 
         Log.d(LOG_TAG, "activity started");
 
-        mDisplaySearchResultTextView = findViewById(R.id.tv_display_search_result_main);
         mSearchEditText = findViewById(R.id.et_book_title_main);
         mSearchButton = findViewById(R.id.btn_search_main);
         mDisplayErrorMessageTextView = findViewById(R.id.tv_error_message_main);
         mLoadingProgressBar = findViewById(R.id.pb_loading_main);
+
+        mRecyclerView = findViewById(R.id.rv_result_main);
+
+        mBookAdapter = new BookAdapter();
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setHasFixedSize(true);
+
+        mRecyclerView.setAdapter(mBookAdapter);
 
         //this gives the progress bar the same visibility as the previous activity in the new one eg when screen is rotated
         if(savedInstanceState != null){
@@ -76,12 +92,13 @@ public class MainActivity extends AppCompatActivity implements android.support.v
 
         //checks if the user inputted anything before clicking search
         if(messageFromEditText == null || TextUtils.isEmpty(messageFromEditText)){
-            mDisplaySearchResultTextView.setText("Enter a Book Title to search");
             return;
         }
 
         //builds the url and returns it
         URL searchUrl = NetworkUtils.buildUrl(messageFromEditText);
+
+        clearData();
 
         Bundle bundle = new Bundle();
         //adds the url as a string bundle for the loader
@@ -93,34 +110,37 @@ public class MainActivity extends AppCompatActivity implements android.support.v
 
         loaderManager.restartLoader(SEARCH_LOADER_ID, bundle, this);
 
-        mDisplaySearchResultTextView.setText("");
 
+
+    }
+
+
+    private void clearData(){
+        mBookAdapter.setBookData(null);
     }
 
     //this method displays the error message
     private void showErrorMessage(){
 
         mDisplayErrorMessageTextView.setVisibility(View.VISIBLE);
-        mDisplaySearchResultTextView.setVisibility(View.INVISIBLE);
+        mRecyclerView.setVisibility(View.INVISIBLE);
         mLoadingProgressBar.setVisibility(View.INVISIBLE);
 
     }
 
     //this method makes the textview for the query visible
     private void showResult(){
-        mDisplaySearchResultTextView.setVisibility(View.VISIBLE);
+        mRecyclerView.setVisibility(View.VISIBLE);
         mDisplayErrorMessageTextView.setVisibility(View.INVISIBLE);
         mLoadingProgressBar.setVisibility(View.INVISIBLE);
 
     }
     //this method displays the progress bar
     private void progressLoading(){
-        mDisplaySearchResultTextView.setVisibility(View.INVISIBLE);
+        mRecyclerView.setVisibility(View.INVISIBLE);
         mDisplayErrorMessageTextView.setVisibility(View.INVISIBLE);
         mLoadingProgressBar.setVisibility(View.VISIBLE);
     }
-
-
 
 
 
@@ -199,6 +219,8 @@ public class MainActivity extends AppCompatActivity implements android.support.v
     @Override
     public void onLoadFinished(Loader<String[]> loader, String[] data) {
 
+        mBookAdapter.setBookData(data);
+
 
         //if there is no result, display an error message
         if(data == null){
@@ -208,10 +230,8 @@ public class MainActivity extends AppCompatActivity implements android.support.v
         }
         else {
             //display the result
-            for(String searchResultString : data){
-                mDisplaySearchResultTextView.append(searchResultString + "\n\n");
                 showResult();
-            }
+
 
         }
     }
@@ -220,6 +240,8 @@ public class MainActivity extends AppCompatActivity implements android.support.v
     public void onLoaderReset(Loader<String[]> loader) {
 
     }
+
+
 
 
     @Override
@@ -231,4 +253,6 @@ public class MainActivity extends AppCompatActivity implements android.support.v
 
        outState.putInt(PROGRESS_BAR_STATUS, progressBarVisibility);
     }
+
+
 }

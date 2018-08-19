@@ -4,4 +4,5 @@
     <string name="search">Search</string>
     <string name="edit_hint">Book Title or Author</string>
     <string name="error_message">Failed to load data. try again</string>
+    <string name="favourite">Favourite</string>
 </resources>

@@ -48,23 +48,11 @@
         app:layout_constraintStart_toEndOf="@+id/et_book_title_main"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ScrollView
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_result_main"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/tv_display_search_result_main"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:text="@string/default_text"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-        </ScrollView>
+            android:layout_height="wrap_content"/>
 
         <ProgressBar
             android:id="@+id/pb_loading_main"

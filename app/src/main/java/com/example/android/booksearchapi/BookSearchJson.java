@@ -102,7 +102,7 @@ public final class BookSearchJson {
                    +publishedDate + ": -- :" + description +  ": -- :" + thumbnail + ": -- :" + smallThumbnail;
 
 
-            //parsedBookData[i] =  ": -- :" + bookTitle + ": -- :" + authors + ": -- :" + categories;
+            parsedBookData[i] =  ": -- :" + bookTitle + ": -- :" + authors + ": -- :" + categories;
         }
 
         return parsedBookData;
