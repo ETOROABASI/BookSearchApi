@@ -202,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements android.support.v
 
         //if there is no result, display an error message
         if(data == null){
+
             showErrorMessage();
             Log.d(LOG_TAG, "data is null in onLoadFinished");
         }

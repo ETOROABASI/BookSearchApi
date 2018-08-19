@@ -75,11 +75,34 @@ public final class BookSearchJson {
         String thumbnail = imageLinkObject.optString(THUMBNAIL);
         String smallThumbnail = imageLinkObject.optString(SMALL_THUMNAIL);
 
-           parsedBookData[i] =  selfLink+ ": -- :" + bookTitle + ": -- :" + bookSubTitle + ": -- :"+ publisher  + ": -- :"
+        String authors = "";
+        if(bookVolumeObject.has(AUTHOR)){
+            JSONArray authorsArray = bookVolumeObject.getJSONArray(AUTHOR);
+
+            for(int x= 0; x<authorsArray.length(); x++){
+                authors = authors + ", " +authorsArray.get(x);
+                Log.d(LOG_TAG, "Author found: " + authors +  " : " + authorsArray.length());
+            }
+        }
+
+
+
+        String categories = "";
+        if(!bookVolumeObject.isNull(CATEGORY)){
+            JSONArray categoryArray = bookVolumeObject.getJSONArray(CATEGORY);
+
+            for(int x= 0; x<categoryArray.length(); x++){
+                categories = categories + ", "+ categoryArray.get(x);
+                Log.d(LOG_TAG, "Category found: "+ categories + " : "+ categoryArray.length());
+            }
+        }
+
+
+           parsedBookData[i] =  selfLink+ ": -- :" + bookTitle + ": -- :" + authors + ": -- :" + categories  + ": -- :" + bookSubTitle + ": -- :"+ publisher  + ": -- :"
                    +publishedDate + ": -- :" + description +  ": -- :" + thumbnail + ": -- :" + smallThumbnail;
 
 
-
+            //parsedBookData[i] =  ": -- :" + bookTitle + ": -- :" + authors + ": -- :" + categories;
         }
 
         return parsedBookData;
